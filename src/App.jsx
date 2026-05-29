@@ -1,20 +1,25 @@
-import { useState, useEffect } from 'react' // Importamos useEffect
+import { useState, useEffect } from 'react'
 
 function App() {
-  // 1. Inicializamos el estado intentando leer si ya hay datos guardados de antes
   const [datosCanales, setDatosCanales] = useState(() => {
     const datosGuardados = localStorage.getItem('dashboard_datos_canales')
     
     if (datosGuardados) {
-      return JSON.parse(datosGuardados) // Si existen, los transformamos de texto a objeto
+      return JSON.parse(datosGuardados)
     } else {
-      // Si no hay nada guardado (primera vez que entra), cargamos los datos por defecto
       return {
         bardosgames: {
           nombre: "BardosGames (Noticias)",
           youtube: { subs: "12,400", vistas: "85.2K" },
           kick: { followers: "1,250", horas: "320hs" },
-          ingresos: "$45,000 ARS",
+          // NUEVOS DATOS FINANCIEROS
+          finanzas: {
+            plataforma1: { fuente: "AdSense YT", monto: 18000 },
+            plataforma2: { fuente: "Sponsors / Kick", monto: 27000 },
+            comisiones: { fuente: "Afiliados", monto: 5000 },
+            metaObjetivo: 60000,
+            metaNombre: "Cámara Nueva / Lente"
+          },
           tareas: [
             { id: 1, titulo: "Guión: Análisis de la situación de la industria", estado: "idea" },
             { id: 2, titulo: "Miniatura para el video de hardware", estado: "progreso" },
@@ -25,7 +30,14 @@ function App() {
           nombre: "Santiago Delgado (Devlogs)",
           youtube: { subs: "3,150", vistas: "18.4K" },
           kick: { followers: "420", horas: "85hs" },
-          ingresos: "$12,500 ARS",
+          // NUEVOS DATOS FINANCIEROS
+          finanzas: {
+            plataforma1: { fuente: "Monetización", monto: 4500 },
+            plataforma2: { fuente: "Donaciones Kick", monto: 3000 },
+            comisiones: { fuente: "Pixel Art / Assets", monto: 15000 },
+            metaObjetivo: 30000,
+            metaNombre: "Licencias de Software / VSTs"
+          },
           tareas: [
             { id: 1, titulo: "Devlog #5: Optimizando el rendimiento en Linux", estado: "idea" },
             { id: 2, titulo: "Grabar voces con el SM58 y Reaper", estado: "progreso" },
@@ -41,12 +53,18 @@ function App() {
 
   const canalInfo = datosCanales[canalActivo]
 
-  // 2. MAGIA: Cada vez que 'datosCanales' cambie, guardamos la versión nueva en LocalStorage
   useEffect(() => {
     localStorage.setItem('dashboard_datos_canales', JSON.stringify(datosCanales))
   }, [datosCanales])
 
-  // Función lógica para agregar la nueva tarea
+  // Lógica para calcular el total de ingresos sumando las fuentes dinámicamente
+  const totalIngresos = canalInfo.finanzas.plataforma1.monto + 
+                        canalInfo.finanzas.plataforma2.monto + 
+                        canalInfo.finanzas.comisiones.monto;
+
+  // Cálculo del porcentaje de la meta alcanzada (tope de 100%)
+  const porcentajeMeta = Math.min(Math.round((totalIngresos / canalInfo.finanzas.metaObjetivo) * 100), 100);
+
   const handleAgregarTarea = (e) => {
     e.preventDefault()
     if (!nuevaTareaTexto.trim()) return
@@ -87,32 +105,63 @@ function App() {
         </div>
       </header>
 
-      {/* MÉTRICAS */}
-      <main className="dashboard-grid">
-        <div className="metric-card youtube-card">
-          <div className="card-header"><h2>YOUTUBE</h2></div>
-          <div className="card-body">
-            <p>Subscriptores: <strong>{canalInfo.youtube.subs}</strong></p>
-            <p>Vistas (30d): <strong>{canalInfo.youtube.vistas}</strong></p>
+      {/* CONTENIDO DEL DASHBOARD: SECCIÓN MÉTRICAS Y FINANZAS */}
+      <div className="main-layout-grid">
+        
+        {/* PANEL IZQUIERDO: MÉTRICAS GENERALES */}
+        <div className="dashboard-grid">
+          <div className="metric-card youtube-card">
+            <div className="card-header"><h2>YOUTUBE</h2></div>
+            <div className="card-body">
+              <p>Subscriptores: <strong>{canalInfo.youtube.subs}</strong></p>
+              <p>Vistas (30d): <strong>{canalInfo.youtube.vistas}</strong></p>
+            </div>
+          </div>
+
+          <div className="metric-card kick-card">
+            <div className="card-header"><h2>KICK</h2></div>
+            <div className="card-body">
+              <p>Seguidores: <strong>{canalInfo.kick.followers}</strong></p>
+              <p>Horas Vistas: <strong>{canalInfo.kick.horas}</strong></p>
+            </div>
           </div>
         </div>
 
-        <div className="metric-card kick-card">
-          <div className="card-header"><h2>KICK</h2></div>
-          <div className="card-body">
-            <p>Seguidores: <strong>{canalInfo.kick.followers}</strong></p>
-            <p>Horas Vistas: <strong>{canalInfo.kick.horas}</strong></p>
+        {/* PANEL DERECHO: NUEVO MÓDULO FINANCIERO INTERACTIVO */}
+        <div className="metric-card finanzas-card">
+          <div className="card-header">
+            <h2>💰 CONTROL FINANCIERO</h2>
+          </div>
+          <div className="card-body finanzas-layout">
+            <div className="monto-box">
+              <h3 className="monto-ingresos">${totalIngresos.toLocaleString('es-AR')} ARS</h3>
+              <p className="status-pago">Estado: Al día (AFIP)</p>
+            </div>
+            
+            <div className="fuentes-lista">
+              <p>{canalInfo.finanzas.plataforma1.fuente}: <strong>${canalInfo.finanzas.plataforma1.monto.toLocaleString('es-AR')}</strong></p>
+              <p>{canalInfo.finanzas.plataforma2.fuente}: <strong>${canalInfo.finanzas.plataforma2.monto.toLocaleString('es-AR')}</strong></p>
+              <p>{canalInfo.finanzas.comisiones.fuente}: <strong>${canalInfo.finanzas.comisiones.monto.toLocaleString('es-AR')}</strong></p>
+            </div>
+
+            {/* BARRA DE PROGRESO DE OBJETIVOS STYLE COMIC */}
+            <div className="meta-container">
+              <div className="meta-info">
+                <span>META: {canalInfo.finanzas.metaNombre}</span>
+                <span>{porcentajeMeta}%</span>
+              </div>
+              <div className="comic-progress-bar">
+                <div 
+                  className="comic-progress-fill" 
+                  style={{ width: `${porcentajeMeta}%` }}
+                ></div>
+              </div>
+              <p className="meta-subtext">Faltan ${(canalInfo.finanzas.metaObjetivo - totalIngresos).toLocaleString('es-AR')} para alcanzar los ${canalInfo.finanzas.metaObjetivo.toLocaleString('es-AR')}</p>
+            </div>
           </div>
         </div>
 
-        <div className="metric-card ingresos-card">
-          <div className="card-header"><h2>INGRESOS ESTIMADOS</h2></div>
-          <div className="card-body">
-            <h3 className="monto-ingresos">{canalInfo.ingresos}</h3>
-            <p className="status-pago">Estado: Al día (AFIP)</p>
-          </div>
-        </div>
-      </main>
+      </div>
 
       {/* SECCIÓN 2: PLANIFICADOR DE CONTENIDO */}
       <section className="agenda-section">
@@ -130,7 +179,6 @@ function App() {
         </form>
         
         <div className="kanban-board">
-          {/* Columna: IDEAS */}
           <div className="kanban-column column-ideas">
             <h3>IDEAS</h3>
             <div className="kanban-cards-container">
@@ -140,7 +188,6 @@ function App() {
             </div>
           </div>
 
-          {/* Columna: EN PROGRESO */}
           <div className="kanban-column column-progreso">
             <h3>EN CURSO</h3>
             <div className="kanban-cards-container">
@@ -150,7 +197,6 @@ function App() {
             </div>
           </div>
 
-          {/* Columna: LISTO */}
           <div className="kanban-column column-listo">
             <h3>LISTO</h3>
             <div className="kanban-cards-container">
