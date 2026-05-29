@@ -1,52 +1,62 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react' // Importamos useEffect
 
 function App() {
-  // 1. Ahora pasamos los datos al Estado de React para que muten en caliente
-  const [datosCanales, setDatosCanales] = useState({
-    bardosgames: {
-      nombre: "BardosGames (Noticias)",
-      youtube: { subs: "12,400", vistas: "85.2K" },
-      kick: { followers: "1,250", horas: "320hs" },
-      ingresos: "$45,000 ARS",
-      tareas: [
-        { id: 1, titulo: "Guión: Análisis de la situación de la industria", estado: "idea" },
-        { id: 2, titulo: "Miniatura para el video de hardware", estado: "progreso" },
-        { id: 3, titulo: "Editar resumen del torneo semanal", estado: "listo" }
-      ]
-    },
-    "santiago-dev": {
-      nombre: "Santiago Delgado (Devlogs)",
-      youtube: { subs: "3,150", vistas: "18.4K" },
-      kick: { followers: "420", horas: "85hs" },
-      ingresos: "$12,500 ARS",
-      tareas: [
-        { id: 1, titulo: "Devlog #5: Optimizando el rendimiento en Linux", estado: "idea" },
-        { id: 2, titulo: "Grabar voces con el SM58 y Reaper", estado: "progreso" },
-        { id: 3, titulo: "Corregir bug de colisiones en las paredes", estado: "listo" }
-      ]
+  // 1. Inicializamos el estado intentando leer si ya hay datos guardados de antes
+  const [datosCanales, setDatosCanales] = useState(() => {
+    const datosGuardados = localStorage.getItem('dashboard_datos_canales')
+    
+    if (datosGuardados) {
+      return JSON.parse(datosGuardados) // Si existen, los transformamos de texto a objeto
+    } else {
+      // Si no hay nada guardado (primera vez que entra), cargamos los datos por defecto
+      return {
+        bardosgames: {
+          nombre: "BardosGames (Noticias)",
+          youtube: { subs: "12,400", vistas: "85.2K" },
+          kick: { followers: "1,250", horas: "320hs" },
+          ingresos: "$45,000 ARS",
+          tareas: [
+            { id: 1, titulo: "Guión: Análisis de la situación de la industria", estado: "idea" },
+            { id: 2, titulo: "Miniatura para el video de hardware", estado: "progreso" },
+            { id: 3, titulo: "Editar resumen del torneo semanal", estado: "listo" }
+          ]
+        },
+        "santiago-dev": {
+          nombre: "Santiago Delgado (Devlogs)",
+          youtube: { subs: "3,150", vistas: "18.4K" },
+          kick: { followers: "420", horas: "85hs" },
+          ingresos: "$12,500 ARS",
+          tareas: [
+            { id: 1, titulo: "Devlog #5: Optimizando el rendimiento en Linux", estado: "idea" },
+            { id: 2, titulo: "Grabar voces con el SM58 y Reaper", estado: "progreso" },
+            { id: 3, titulo: "Corregir bug de colisiones en las paredes", estado: "listo" }
+          ]
+        }
+      }
     }
   })
 
   const [canalActivo, setCanalActivo] = useState('bardosgames')
-  
-  // Estado local para controlar el texto que escribe el usuario en el input
   const [nuevaTareaTexto, setNuevaTareaTexto] = useState('')
 
   const canalInfo = datosCanales[canalActivo]
 
-  // 2. Función lógica para agregar la nueva tarea adentro del canal correcto
-  const handleAgregarTarea = (e) => {
-    e.preventDefault() // Evita que la página se recargue al enviar el formulario
-    if (!nuevaTareaTexto.trim()) return // Si está vacío, no hace nada
+  // 2. MAGIA: Cada vez que 'datosCanales' cambie, guardamos la versión nueva en LocalStorage
+  useEffect(() => {
+    localStorage.setItem('dashboard_datos_canales', JSON.stringify(datosCanales))
+  }, [datosCanales])
 
-    // Creamos el nuevo objeto de la tarea
+  // Función lógica para agregar la nueva tarea
+  const handleAgregarTarea = (e) => {
+    e.preventDefault()
+    if (!nuevaTareaTexto.trim()) return
+
     const nuevaTarea = {
-      id: Date.now(), // ID único basado en el tiempo
+      id: Date.now(),
       titulo: nuevaTareaTexto,
-      estado: 'idea' // Arranca siempre como idea
+      estado: 'idea'
     }
 
-    // Actualizamos el estado de React manteniendo todo lo viejo pero sumando la tarea
     setDatosCanales({
       ...datosCanales,
       [canalActivo]: {
@@ -55,7 +65,7 @@ function App() {
       }
     })
 
-    setNuevaTareaTexto('') // Limpiamos el input del formulario
+    setNuevaTareaTexto('')
   }
 
   return (
@@ -108,7 +118,6 @@ function App() {
       <section className="agenda-section">
         <h2 className="agenda-titulo">📋 PLAN DE PRODUCCIÓN</h2>
         
-        {/* FORMULARIO PARA AÑADIR TAREAS */}
         <form onSubmit={handleAgregarTarea} className="agenda-form">
           <input 
             type="text" 
