@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+// IMPORTAMOS LOS COMPONENTES DE RECHARTS
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
 function App() {
   const [datosCanales, setDatosCanales] = useState(() => {
@@ -12,7 +14,6 @@ function App() {
           nombre: "BardosGames (Noticias)",
           youtube: { subs: "12,400", vistas: "85.2K" },
           kick: { followers: "1,250", horas: "320hs" },
-          // NUEVOS DATOS FINANCIEROS
           finanzas: {
             plataforma1: { fuente: "AdSense YT", monto: 18000 },
             plataforma2: { fuente: "Sponsors / Kick", monto: 27000 },
@@ -20,6 +21,13 @@ function App() {
             metaObjetivo: 60000,
             metaNombre: "Cámara Nueva / Lente"
           },
+          // NUEVO: HISTÓRICO MENSUAL PARA EL GRÁFICO
+          historico: [
+            { mes: 'Feb', ingresos: 32000 },
+            { mes: 'Mar', ingresos: 41000 },
+            { mes: 'Abr', ingresos: 48000 },
+            { mes: 'May', ingresos: 50000 }
+          ],
           tareas: [
             { id: 1, titulo: "Guión: Análisis de la situación de la industria", estado: "idea" },
             { id: 2, titulo: "Miniatura para el video de hardware", estado: "progreso" },
@@ -30,7 +38,6 @@ function App() {
           nombre: "Santiago Delgado (Devlogs)",
           youtube: { subs: "3,150", vistas: "18.4K" },
           kick: { followers: "420", horas: "85hs" },
-          // NUEVOS DATOS FINANCIEROS
           finanzas: {
             plataforma1: { fuente: "Monetización", monto: 4500 },
             plataforma2: { fuente: "Donaciones Kick", monto: 3000 },
@@ -38,6 +45,13 @@ function App() {
             metaObjetivo: 30000,
             metaNombre: "Licencias de Software / VSTs"
           },
+          // NUEVO: HISTÓRICO MENSUAL PARA EL GRÁFICO
+          historico: [
+            { mes: 'Feb', ingresos: 11000 },
+            { mes: 'Mar', ingresos: 14500 },
+            { mes: 'Abr', ingresos: 19000 },
+            { mes: 'May', ingresos: 22500 }
+          ],
           tareas: [
             { id: 1, titulo: "Devlog #5: Optimizando el rendimiento en Linux", estado: "idea" },
             { id: 2, titulo: "Grabar voces con el SM58 y Reaper", estado: "progreso" },
@@ -57,12 +71,10 @@ function App() {
     localStorage.setItem('dashboard_datos_canales', JSON.stringify(datosCanales))
   }, [datosCanales])
 
-  // Lógica para calcular el total de ingresos sumando las fuentes dinámicamente
   const totalIngresos = canalInfo.finanzas.plataforma1.monto + 
                         canalInfo.finanzas.plataforma2.monto + 
                         canalInfo.finanzas.comisiones.monto;
 
-  // Cálculo del porcentaje de la meta alcanzada (tope de 100%)
   const porcentajeMeta = Math.min(Math.round((totalIngresos / canalInfo.finanzas.metaObjetivo) * 100), 100);
 
   const handleAgregarTarea = (e) => {
@@ -105,7 +117,7 @@ function App() {
         </div>
       </header>
 
-      {/* CONTENIDO DEL DASHBOARD: SECCIÓN MÉTRICAS Y FINANZAS */}
+      {/* SECCIÓN 1: GRIDS SUPERIORES */}
       <div className="main-layout-grid">
         
         {/* PANEL IZQUIERDO: MÉTRICAS GENERALES */}
@@ -127,7 +139,7 @@ function App() {
           </div>
         </div>
 
-        {/* PANEL DERECHO: NUEVO MÓDULO FINANCIERO INTERACTIVO */}
+        {/* PANEL DERECHO: MÓDULO FINANCIERO */}
         <div className="metric-card finanzas-card">
           <div className="card-header">
             <h2>💰 CONTROL FINANCIERO</h2>
@@ -144,7 +156,6 @@ function App() {
               <p>{canalInfo.finanzas.comisiones.fuente}: <strong>${canalInfo.finanzas.comisiones.monto.toLocaleString('es-AR')}</strong></p>
             </div>
 
-            {/* BARRA DE PROGRESO DE OBJETIVOS STYLE COMIC */}
             <div className="meta-container">
               <div className="meta-info">
                 <span>META: {canalInfo.finanzas.metaNombre}</span>
@@ -163,7 +174,29 @@ function App() {
 
       </div>
 
-      {/* SECCIÓN 2: PLANIFICADOR DE CONTENIDO */}
+      {/* NUEVA SECCIÓN MÓDULO B: GRÁFICO HISTÓRICO DE CRECIMIENTO */}
+      <section className="chart-section metric-card">
+        <div className="card-header">
+          <h2>📊 TENDENCIA DE INGRESOS MENSUALES</h2>
+        </div>
+        <div className="chart-wrapper">
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={canalInfo.historico || []} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#2b2b32" vertical={false} />
+              <XAxis dataKey="mes" stroke="#a8a8b3" tick={{ fontFamily: 'monospace', fontWeight: 'bold' }} />
+              <YAxis stroke="#a8a8b3" tick={{ fontFamily: 'monospace' }} />
+              <Tooltip 
+                contentStyle={{ background: '#121214', border: '3px solid #000', fontFamily: 'monospace', fontWeight: 'bold' }} 
+                cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+              />
+              {/* Barra gruesa con estética de bloque */}
+              <Bar dataKey="ingresos" fill="#53FC18" stroke="#000" strokeWidth={2} radius={[0, 0, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </section>
+
+      {/* SECCIÓN 3: PLANIFICADOR DE CONTENIDO */}
       <section className="agenda-section">
         <h2 className="agenda-titulo">📋 PLAN DE PRODUCCIÓN</h2>
         
