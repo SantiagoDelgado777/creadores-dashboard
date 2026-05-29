@@ -183,3 +183,52 @@ body {
   text-decoration: line-through;
   color: #7c7c8a;
 }
+
+/* --- ESTILOS DEL FORMULARIO DE TAREAS --- */
+.agenda-form {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.agenda-input {
+  flex: 1;
+  background: #121214;
+  border: 3px solid #000;
+  padding: 12px 16px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 4px 4px 0px #000;
+  outline: none;
+}
+
+.agenda-input:focus {
+  border-color: #ff3399; /* Borde rosa al escribir */
+}
+
+.agenda-btn {
+  background: #ff3399; /* Rosa fuerte */
+  color: #000;
+  border: 3px solid #000;
+  padding: 0 25px;
+  font-family: inherit;
+  font-weight: 900;
+  font-size: 14px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px #000;
+  transition: transform 0.05s ease;
+}
+
+.agenda-btn:hover {
+  background: #ff0055;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px #000;
+}
+
+.agenda-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #000;
+}

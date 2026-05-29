@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
 function App() {
-  // Datos simulados (Mock Data) ampliados con tareas para la agenda
-  const datosCanales = {
+  // 1. Ahora pasamos los datos al Estado de React para que muten en caliente
+  const [datosCanales, setDatosCanales] = useState({
     bardosgames: {
       nombre: "BardosGames (Noticias)",
       youtube: { subs: "12,400", vistas: "85.2K" },
@@ -25,10 +25,38 @@ function App() {
         { id: 3, titulo: "Corregir bug de colisiones en las paredes", estado: "listo" }
       ]
     }
-  }
+  })
 
   const [canalActivo, setCanalActivo] = useState('bardosgames')
+  
+  // Estado local para controlar el texto que escribe el usuario en el input
+  const [nuevaTareaTexto, setNuevaTareaTexto] = useState('')
+
   const canalInfo = datosCanales[canalActivo]
+
+  // 2. Función lógica para agregar la nueva tarea adentro del canal correcto
+  const handleAgregarTarea = (e) => {
+    e.preventDefault() // Evita que la página se recargue al enviar el formulario
+    if (!nuevaTareaTexto.trim()) return // Si está vacío, no hace nada
+
+    // Creamos el nuevo objeto de la tarea
+    const nuevaTarea = {
+      id: Date.now(), // ID único basado en el tiempo
+      titulo: nuevaTareaTexto,
+      estado: 'idea' // Arranca siempre como idea
+    }
+
+    // Actualizamos el estado de React manteniendo todo lo viejo pero sumando la tarea
+    setDatosCanales({
+      ...datosCanales,
+      [canalActivo]: {
+        ...datosCanales[canalActivo],
+        tareas: [...datosCanales[canalActivo].tareas, nuevaTarea]
+      }
+    })
+
+    setNuevaTareaTexto('') // Limpiamos el input del formulario
+  }
 
   return (
     <div className="dashboard-container">
@@ -49,7 +77,7 @@ function App() {
         </div>
       </header>
 
-      {/* CONTENIDO DEL DASHBOARD: MÉTRICAS */}
+      {/* MÉTRICAS */}
       <main className="dashboard-grid">
         <div className="metric-card youtube-card">
           <div className="card-header"><h2>YOUTUBE</h2></div>
@@ -76,9 +104,21 @@ function App() {
         </div>
       </main>
 
-      {/* SECCIÓN 2: PLANIFICADOR DE CONTENIDO (AGENDA) */}
+      {/* SECCIÓN 2: PLANIFICADOR DE CONTENIDO */}
       <section className="agenda-section">
         <h2 className="agenda-titulo">📋 PLAN DE PRODUCCIÓN</h2>
+        
+        {/* FORMULARIO PARA AÑADIR TAREAS */}
+        <form onSubmit={handleAgregarTarea} className="agenda-form">
+          <input 
+            type="text" 
+            placeholder="Escribí una nueva idea para este canal..." 
+            value={nuevaTareaTexto}
+            onChange={(e) => setNuevaTareaTexto(e.target.value)}
+            className="agenda-input"
+          />
+          <button type="submit" className="agenda-btn">+ AÑADIR</button>
+        </form>
         
         <div className="kanban-board">
           {/* Columna: IDEAS */}
