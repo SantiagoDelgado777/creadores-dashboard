@@ -7,7 +7,11 @@ import { CSS } from '@dnd-kit/utilities';
 // --- COMPONENTES ---
 function SortableTask({ tarea, borrarTarea }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: tarea.id });
-  const style = { transform: CSS.Transform.toString(transform), transition, touchAction: 'none' };
+  const style = { 
+    transform: CSS.Transform.toString(transform), 
+    transition, 
+    touchAction: 'none' 
+  };
   
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="agenda-card">
@@ -20,7 +24,7 @@ function SortableTask({ tarea, borrarTarea }) {
 function KanbanColumn({ estado, tareas, borrarTarea }) {
   const { setNodeRef } = useDroppable({ id: estado });
   
-  // AQUÍ APLICAMOS EL ORDEN ALFABÉTICO
+  // Orden alfabético: lo calculamos aquí para el renderizado visual
   const tareasOrdenadas = [...tareas].sort((a, b) => a.titulo.localeCompare(b.titulo));
 
   return (
@@ -45,29 +49,52 @@ function App() {
     };
   });
 
-  const sensors = useSensors(useSensor(PointerSensor), useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }));
+  // Sensores mejorados para evitar conflictos táctiles/scroll
+  const sensors = useSensors(
+    useSensor(PointerSensor), 
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
+  );
+
   const [canalActivo, setCanalActivo] = useState('bardosgames');
   const [nuevaTarea, setNuevaTarea] = useState('');
   const canalInfo = datosCanales[canalActivo];
 
   useEffect(() => localStorage.setItem('dashboard_datos_canales', JSON.stringify(datosCanales)), [datosCanales]);
 
+  // Lógica robusta: detecta tanto el drop en columnas como en tarjetas
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    if (!over || active.id === over.id || !['idea', 'progreso', 'listo'].includes(over.id)) return;
-    const nuevasTareas = canalInfo.tareas.map(t => t.id === active.id ? { ...t, estado: over.id } : t);
-    setDatosCanales({ ...datosCanales, [canalActivo]: { ...canalInfo, tareas: nuevasTareas } });
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    // Determinamos la columna destino
+    const columnas = ['idea', 'progreso', 'listo'];
+    const columnaDestino = columnas.includes(overId) ? overId : canalInfo.tareas.find(t => t.id === overId)?.estado;
+
+    if (columnaDestino) {
+      const nuevasTareas = canalInfo.tareas.map(t => 
+        t.id === activeId ? { ...t, estado: columnaDestino } : t
+      );
+      setDatosCanales({ ...datosCanales, [canalActivo]: { ...canalInfo, tareas: nuevasTareas } });
+    }
   };
 
   const borrarTarea = (id) => {
-    const nuevasTareas = canalInfo.tareas.filter(t => t.id !== id);
-    setDatosCanales({ ...datosCanales, [canalActivo]: { ...canalInfo, tareas: nuevasTareas } });
+    setDatosCanales(prev => ({
+      ...prev,
+      [canalActivo]: { ...prev[canalActivo], tareas: prev[canalActivo].tareas.filter(t => t.id !== id) }
+    }));
   };
 
   const addTarea = (e) => {
     e.preventDefault();
     if (!nuevaTarea.trim()) return;
-    setDatosCanales({ ...datosCanales, [canalActivo]: { ...canalInfo, tareas: [...canalInfo.tareas, { id: Date.now(), titulo: nuevaTarea, estado: 'idea' }] } });
+    setDatosCanales(prev => ({
+      ...prev,
+      [canalActivo]: { ...prev[canalActivo], tareas: [...prev[canalActivo].tareas, { id: Date.now(), titulo: nuevaTarea, estado: 'idea' }] }
+    }));
     setNuevaTarea('');
   };
 
@@ -80,23 +107,12 @@ function App() {
         </select>
       </header>
 
-      <div className="grid-principal">
-        <div className="card metrics">
-          <h2>YOUTUBE: {canalInfo.youtube.subs}</h2>
-          <h2>KICK: {canalInfo.kick.followers}</h2>
-        </div>
-        <div className="card chart">
-           <ResponsiveContainer width="100%" height={150}>
-             <BarChart data={canalInfo.historico}><Bar dataKey="ingresos" fill="#53FC18" /></BarChart>
-           </ResponsiveContainer>
-        </div>
-      </div>
-
       <section className="agenda-section">
         <form onSubmit={addTarea} className="agenda-form">
           <input value={nuevaTarea} onChange={(e) => setNuevaTarea(e.target.value)} placeholder="Nueva tarea..." />
           <button type="submit">+ AÑADIR</button>
         </form>
+
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className="kanban-board">
             {['idea', 'progreso', 'listo'].map(estado => (
