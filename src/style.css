@@ -1,319 +1,133 @@
 /* ==========================================================================
-   1. LO QUE YA TENÍAMOS DESDE EL PRINCIPIO (ESTILOS GLOBALES Y MÉTRICAS)
+   ESTILOS MODERNOS Y PROFESIONALES
    ========================================================================== */
 :root {
-  background-color: #121214;
-  color: #e1e1e6;
-  font-family: 'Courier New', Courier, monospace;
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --primary-color: #2563eb;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
   margin: 0;
-  padding: 20px;
+  padding: 40px 20px;
 }
 
 .dashboard-container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
+/* Header limpio */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 4px solid #000;
-  padding-bottom: 15px;
-  margin-bottom: 30px;
-  background: #1a1a1e;
-  padding: 20px;
-  box-shadow: 8px 8px 0px #000;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 40px;
 }
 
 .logo-titulo {
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: -1px;
-  color: #fff;
-  text-shadow: 2px 2px 0px #ff0055;
-  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
 }
 
-.selector-box label {
-  font-weight: bold;
-  text-transform: uppercase;
-  font-size: 14px;
-}
-
+/* Selector moderno */
 .comic-select {
-  background: #202024;
-  color: #53FC18;
-  border: 3px solid #000;
-  padding: 8px 12px;
-  font-weight: bold;
-  font-family: inherit;
+  background: white;
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
   cursor: pointer;
-  box-shadow: 4px 4px 0px #000;
+  box-shadow: var(--shadow-sm);
 }
 
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 25px;
+/* Tarjetas modernas */
+.metric-card, .agenda-section, .kanban-column {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow-md);
 }
 
-.metric-card {
-  background: #1a1a1e;
-  border: 4px solid #000;
-  box-shadow: 8px 8px 0px #000;
-  padding: 20px;
-  position: relative;
-  transition: transform 0.1s ease;
-}
-
-.metric-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 10px 10px 0px #000;
-}
-
-.card-header h2 {
-  margin: 0 0 15px 0;
-  font-size: 20px;
-  letter-spacing: 1px;
-  border-bottom: 2px dashed #323238;
-  padding-bottom: 5px;
-}
-
-.youtube-card .card-header h2 { color: #ff3333; }
-.kick-card .card-header h2 { color: #53FC18; }
-.ingresos-card .card-header h2 { color: #ffff33; }
-
-.card-body p {
-  font-size: 16px;
-  margin: 10px 0;
-  color: #a8a8b3;
-}
-
-.card-body strong {
-  color: #fff;
-  font-size: 18px;
+.metric-card h2 {
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
 }
 
 .monto-ingresos {
-  font-size: 32px;
-  margin: 10px 0;
-  color: #ffff33;
-  text-shadow: 2px 2px 0px #000;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
-.status-pago {
-  font-size: 12px !important;
-  color: #7c7c8a !important;
-  text-transform: uppercase;
-}
-
-/* ==========================================================================
-   2. ESTILOS DEL TABLERO KANBAN Y EL FORMULARIO INTERACTIVO
-   ========================================================================== */
-.agenda-section {
-  margin-top: 50px;
-  background: #1a1a1e;
-  border: 4px solid #000;
-  box-shadow: 8px 8px 0px #000;
-  padding: 25px;
-}
-
-.agenda-titulo {
-  font-size: 22px;
-  margin-top: 0;
-  margin-bottom: 25px;
-  letter-spacing: 1px;
-  text-shadow: 2px 2px 0px #000;
-  color: #fff;
-  border-bottom: 4px solid #000;
-  padding-bottom: 10px;
-}
-
-.agenda-form {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 30px;
-}
-
-.agenda-input {
-  flex: 1;
-  background: #121214;
-  border: 3px solid #000;
-  padding: 12px 16px;
-  color: #fff;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: bold;
-  box-shadow: 4px 4px 0px #000;
-  outline: none;
-}
-
-.agenda-input:focus {
-  border-color: #ff3399;
-}
-
-.agenda-btn {
-  background: #ff3399;
-  color: #000;
-  border: 3px solid #000;
-  padding: 0 25px;
-  font-family: inherit;
-  font-weight: 900;
-  font-size: 14px;
-  text-transform: uppercase;
-  cursor: pointer;
-  box-shadow: 4px 4px 0px #000;
-  transition: transform 0.05s ease;
-}
-
-.agenda-btn:hover {
-  background: #ff0055;
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px #000;
-}
-
-.agenda-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px #000;
-}
-
+/* Kanban moderno */
 .kanban-board {
   display: flex;
   gap: 20px;
-  flex-wrap: wrap;
 }
 
 .kanban-column {
   flex: 1;
-  min-width: 250px;
-  background: #121214;
-  border: 3px solid #000;
-  padding: 15px;
-  box-shadow: 4px 4px 0px #000;
+  background: #f1f5f9; /* Un tono ligeramente gris para las columnas */
+  border: none;
 }
 
 .kanban-column h3 {
-  margin-top: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
   margin-bottom: 15px;
-  font-size: 16px;
-  text-align: center;
-  padding: 5px;
-  border: 2px solid #000;
-  background: #202024;
-}
-
-.column-ideas h3 { color: #ff3399; }
-.column-progreso h3 { color: #ffff33; }
-.column-listo h3 { color: #53FC18; }
-
-.kanban-cards-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
 .agenda-card {
-  background: #1a1a1e;
-  border: 2px solid #000;
+  background: white;
+  border: 1px solid var(--border-color);
   padding: 12px;
-  font-size: 14px;
-  color: #e1e1e6;
-  border-left: 6px solid #ff3399;
-  box-shadow: 2px 2px 0px #000;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s;
 }
 
-.column-progreso .agenda-card { border-left-color: #ffff33; }
-.column-listo .agenda-card {
-  border-left-color: #53FC18;
-  text-decoration: line-through;
-  color: #7c7c8a;
+.agenda-card:hover {
+  transform: translateY(-2px);
 }
 
-/* ==========================================================================
-   3. LO NUEVO: DISTRIBUCIÓN DE DOS COLUMNAS Y PANEL DE FINANZAS
-   ========================================================================== */
-.main-layout-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 25px;
-  margin-bottom: 25px;
+/* Botones modernos */
+.agenda-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-@media (max-width: 850px) {
-  .main-layout-grid {
-    grid-template-columns: 1fr;
-  }
+.agenda-btn:hover {
+  background: #1d4ed8;
 }
 
-.finanzas-card .card-header h2 {
-  color: #ffff33;
-}
-
-.finanzas-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.fuentes-lista p {
-  margin: 6px 0;
-  font-size: 14px;
-  border-bottom: 1px dashed #2b2b32;
-  padding-bottom: 4px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.meta-container {
-  margin-top: 10px;
-}
-
-.meta-info {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  font-size: 12px;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-  color: #ffff33;
-}
-
-.comic-progress-bar {
-  background: #121214;
-  border: 3px solid #000;
-  height: 24px;
-  box-shadow: 3px 3px 0px #000;
-  position: relative;
-  overflow: hidden;
-}
-
-.comic-progress-fill {
-  background: #ffff33;
-  height: 100%;
-  border-right: 3px solid #000;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.meta-subtext {
-  font-size: 11px !important;
-  color: #7c7c8a !important;
-  margin-top: 8px !important;
-  text-transform: uppercase;
-}
-
-/* --- CONTENEDOR DEL GRÁFICO --- */
-.chart-section {
-  margin-top: 25px;
-}
-
-.chart-wrapper {
-  margin-top: 20px;
-  background: #121214;
-  border: 3px solid #000;
-  padding: 20px 15px 10px 15px;
-  box-shadow: 4px 4px 0px #000;
+.agenda-input {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 15px;
+  background: white;
 }
