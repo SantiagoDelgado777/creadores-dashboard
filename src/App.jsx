@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
+import { useState, useEffect } from 'react';
+import { supabase } from './supabaseClient';
+import Login from './Login';
 import { DndContext, closestCenter, useDroppable, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -7,12 +8,7 @@ import { CSS } from '@dnd-kit/utilities';
 // --- COMPONENTES ---
 function SortableTask({ tarea, borrarTarea }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: tarea.id });
-  const style = { 
-    transform: CSS.Transform.toString(transform), 
-    transition, 
-    touchAction: 'none' 
-  };
-  
+  const style = { transform: CSS.Transform.toString(transform), transition, touchAction: 'none' };
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="agenda-card">
       {tarea.titulo}
@@ -23,105 +19,96 @@ function SortableTask({ tarea, borrarTarea }) {
 
 function KanbanColumn({ estado, tareas, borrarTarea }) {
   const { setNodeRef } = useDroppable({ id: estado });
-  
-  // Orden alfabético: lo calculamos aquí para el renderizado visual
-  const tareasOrdenadas = [...tareas].sort((a, b) => a.titulo.localeCompare(b.titulo));
-
   return (
     <div ref={setNodeRef} className={`kanban-column column-${estado}`}>
       <h3>{estado.toUpperCase()}</h3>
-      <SortableContext items={tareasOrdenadas.map(t => t.id)} strategy={verticalListSortingStrategy}>
+      <SortableContext items={tareas.map(t => t.id)} strategy={verticalListSortingStrategy}>
         <div className="kanban-cards-container">
-          {tareasOrdenadas.map(tarea => (
-            <SortableTask key={tarea.id} tarea={tarea} borrarTarea={borrarTarea} />
-          ))}
+          {tareas.map(tarea => <SortableTask key={tarea.id} tarea={tarea} borrarTarea={borrarTarea} />)}
         </div>
       </SortableContext>
     </div>
   );
 }
 
-function App() {
-  const [datosCanales, setDatosCanales] = useState(() => {
-    const saved = localStorage.getItem('dashboard_datos_canales');
-    return saved ? JSON.parse(saved) : {
-        bardosgames: { nombre: "BardosGames", youtube: { subs: "12,400", vistas: "85.2K" }, kick: { followers: "1,250", horas: "320hs" }, finanzas: { plataforma1: { monto: 18000 }, plataforma2: { monto: 27000 }, comisiones: { monto: 5000 }, metaObjetivo: 60000 }, historico: [{ mes: 'Feb', ingresos: 32000 }, { mes: 'Mar', ingresos: 41000 }, { mes: 'Abr', ingresos: 48000 }, { mes: 'May', ingresos: 50000 }], tareas: [{ id: 1, titulo: "Guión", estado: "idea" }] }
-    };
-  });
-
-  // Sensores mejorados para evitar conflictos táctiles/scroll
-  const sensors = useSensors(
-    useSensor(PointerSensor), 
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
-  );
-
-  const [canalActivo, setCanalActivo] = useState('bardosgames');
+// --- APP ---
+export default function App() {
+  const [sesion, setSesion] = useState(null);
+  const [tareas, setTareas] = useState([]); // Estado único para las tareas de Supabase
   const [nuevaTarea, setNuevaTarea] = useState('');
-  const canalInfo = datosCanales[canalActivo];
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }));
 
-  useEffect(() => localStorage.setItem('dashboard_datos_canales', JSON.stringify(datosCanales)), [datosCanales]);
+  // 1. Cargar tareas desde Supabase al iniciar
+  useEffect(() => {
+    if (sesion) {
+      const cargarTareas = async () => {
+        const { data } = await supabase.from('tareas').select('*').eq('user_id', sesion.user.id);
+        if (data) setTareas(data);
+      };
+      cargarTareas();
+    }
+  }, [sesion]);
 
-  // Lógica robusta: detecta tanto el drop en columnas como en tarjetas
-  const handleDragEnd = (event) => {
+  // 2. Auth state
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSesion(session));
+    supabase.auth.onAuthStateChange((_event, session) => setSesion(session));
+  }, []);
+
+  // 3. Insertar tarea
+  const addTarea = async (e) => {
+    e.preventDefault();
+    if (!nuevaTarea.trim()) return;
+    const { data, error } = await supabase
+      .from('tareas')
+      .insert([{ titulo: nuevaTarea, estado: 'idea', user_id: sesion.user.id }])
+      .select();
+    
+    if (data) setTareas([...tareas, ...data]);
+    setNuevaTarea('');
+  };
+
+  // 4. Borrar tarea
+  const borrarTarea = async (id) => {
+    await supabase.from('tareas').delete().eq('id', id);
+    setTareas(tareas.filter(t => t.id !== id));
+  };
+
+  // 5. Mover tarea (Drag and Drop)
+  const handleDragEnd = async (event) => {
     const { active, over } = event;
-    if (!over) return;
-
-    const activeId = active.id;
-    const overId = over.id;
-
-    // Determinamos la columna destino
-    const columnas = ['idea', 'progreso', 'listo'];
-    const columnaDestino = columnas.includes(overId) ? overId : canalInfo.tareas.find(t => t.id === overId)?.estado;
-
+    if (!over || active.id === over.id) return;
+    const columnaDestino = ['idea', 'progreso', 'listo'].includes(over.id) ? over.id : tareas.find(t => t.id === over.id)?.estado;
+    
     if (columnaDestino) {
-      const nuevasTareas = canalInfo.tareas.map(t => 
-        t.id === activeId ? { ...t, estado: columnaDestino } : t
-      );
-      setDatosCanales({ ...datosCanales, [canalActivo]: { ...canalInfo, tareas: nuevasTareas } });
+      setTareas(tareas.map(t => t.id === active.id ? { ...t, estado: columnaDestino } : t));
+      await supabase.from('tareas').update({ estado: columnaDestino }).eq('id', active.id);
     }
   };
 
-  const borrarTarea = (id) => {
-    setDatosCanales(prev => ({
-      ...prev,
-      [canalActivo]: { ...prev[canalActivo], tareas: prev[canalActivo].tareas.filter(t => t.id !== id) }
-    }));
-  };
-
-  const addTarea = (e) => {
-    e.preventDefault();
-    if (!nuevaTarea.trim()) return;
-    setDatosCanales(prev => ({
-      ...prev,
-      [canalActivo]: { ...prev[canalActivo], tareas: [...prev[canalActivo].tareas, { id: Date.now(), titulo: nuevaTarea, estado: 'idea' }] }
-    }));
-    setNuevaTarea('');
-  };
+  if (!sesion) return <Login setSesion={setSesion} />;
 
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
         <h1>CREADORES DASHBOARD</h1>
-        <select onChange={(e) => setCanalActivo(e.target.value)} className="comic-select">
-          <option value="bardosgames">BardosGames</option>
-        </select>
+        <button className="agenda-btn" onClick={() => supabase.auth.signOut()}>Cerrar Sesión</button>
       </header>
 
       <section className="agenda-section">
         <form onSubmit={addTarea} className="agenda-form">
-          <input value={nuevaTarea} onChange={(e) => setNuevaTarea(e.target.value)} placeholder="Nueva tarea..." />
-          <button type="submit">+ AÑADIR</button>
+          <input className="agenda-input" value={nuevaTarea} onChange={(e) => setNuevaTarea(e.target.value)} placeholder="Nueva tarea..." />
+          <button className="agenda-btn" type="submit">+ AÑADIR</button>
         </form>
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className="kanban-board">
             {['idea', 'progreso', 'listo'].map(estado => (
-              <KanbanColumn key={estado} estado={estado} tareas={canalInfo.tareas.filter(t => t.estado === estado)} borrarTarea={borrarTarea} />
+              <KanbanColumn key={estado} estado={estado} tareas={tareas.filter(t => t.estado === estado)} borrarTarea={borrarTarea} />
             ))}
           </div>
         </DndContext>
       </section>
     </div>
-  )
+  );
 }
-export default App;

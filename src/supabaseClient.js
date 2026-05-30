@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://ikejdclgfyrvxrhshtju.supabase.co'
-const supabaseAnonKey = 'sb_publishable_dNiPyR244gjFvKngr-cQ5Q_S7sr8xGgM6N5VpX7n' // Tu llave pública
+// Aquí le decimos a Vite que busque las variables en el archivo .env
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
