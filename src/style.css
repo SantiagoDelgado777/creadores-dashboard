@@ -1,133 +1,198 @@
 /* ==========================================================================
-   ESTILOS MODERNOS Y PROFESIONALES
+   CREADORES DASHBOARD — ESTILOS PRO
    ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
 :root {
-  --bg-color: #f8fafc;
+  --bg-color: #f0f4f8;
   --card-bg: #ffffff;
   --primary-color: #2563eb;
   --text-main: #0f172a;
   --text-muted: #64748b;
   --border-color: #e2e8f0;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-  font-family: 'Inter', system-ui, sans-serif;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 body {
   background-color: var(--bg-color);
   color: var(--text-main);
   margin: 0;
-  padding: 40px 20px;
+  padding: 32px 24px;
+  min-height: 100vh;
 }
 
+/* ---- Dashboard ---- */
 .dashboard-container {
-  max-width: 1100px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 
-/* Header limpio */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 0;
+  padding: 0 0 24px 0;
   border-bottom: 1px solid var(--border-color);
-  margin-bottom: 40px;
+  margin-bottom: 28px;
 }
 
-.logo-titulo {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-main);
-  letter-spacing: -0.5px;
-}
-
-/* Selector moderno */
-.comic-select {
-  background: white;
-  border: 1px solid var(--border-color);
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-}
-
-/* Tarjetas modernas */
-.metric-card, .agenda-section, .kanban-column {
-  background: var(--card-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-}
-
-.metric-card h2 {
-  font-size: 14px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  letter-spacing: 0.05em;
-  margin-bottom: 10px;
-}
-
-.monto-ingresos {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-/* Kanban moderno */
+/* ---- Kanban Board ---- */
 .kanban-board {
   display: flex;
-  gap: 20px;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
 }
 
-.kanban-column {
-  flex: 1;
-  background: #f1f5f9; /* Un tono ligeramente gris para las columnas */
-  border: none;
-}
-
-.kanban-column h3 {
-  font-size: 12px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-bottom: 15px;
-}
-
+/* ---- Tarjetas ---- */
 .agenda-card {
   background: white;
   border: 1px solid var(--border-color);
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 8px;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.2s;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: grab;
+  user-select: none;
 }
 
 .agenda-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
 
-/* Botones modernos */
+.agenda-card:active {
+  cursor: grabbing;
+}
+
+/* ---- Botones ---- */
 .agenda-btn {
   background: var(--primary-color);
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 10px 20px;
-  font-weight: 600;
+  padding: 10px 18px;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s ease, transform 0.1s ease;
+  font-family: inherit;
 }
 
 .agenda-btn:hover {
   background: #1d4ed8;
 }
 
+.agenda-btn:active {
+  transform: scale(0.97);
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s;
+  font-family: inherit;
+}
+
+.delete-btn:hover {
+  color: #ef4444;
+}
+
+/* ---- Inputs ---- */
 .agenda-input {
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 10px 15px;
+  padding: 10px 14px;
   background: white;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-main);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.agenda-input:focus {
+  outline: none;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.agenda-input::placeholder {
+  color: #94a3b8;
+}
+
+/* ---- Login ---- */
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 50%, #faf5ff 100%);
+}
+
+.login-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.login-card h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.login-card input {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+.login-card input:focus {
+  outline: none;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.login-card button {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  body {
+    padding: 16px 12px;
+  }
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 }
